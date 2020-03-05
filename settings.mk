@@ -8,3 +8,7 @@
 # Doze
 PRODUCT_PACKAGES += \
     OnePlusDoze
+
+# Device Settings
+PRODUCT_PACKAGES += \
+    DeviceSettings
