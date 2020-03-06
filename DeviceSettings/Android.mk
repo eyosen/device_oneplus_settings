@@ -33,8 +33,10 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
     AicpGear-preference \
     AicpGear-util
 
+ifeq ($(filter enchilada fajita,$(TARGET_DEVICE)),)
 LOCAL_STATIC_JAVA_LIBRARIES := \
     vendor.oneplus.camera.CameraHIDL-V1.0-java
+endif
 
 LOCAL_RESOURCE_DIR := \
     $(LOCAL_PATH)/res \
