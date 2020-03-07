@@ -33,9 +33,9 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
     AicpGear-preference \
     AicpGear-util
 
-ifneq ($(filter guacamole, guacamoleb, guacamolec,$(TARGET_DEVICE)),)
-LOCAL_STATIC_JAVA_LIBRARIES := \
-    vendor.oneplus.camera.CameraHIDL-V1.0-java
+ifneq ($(filter guacamole, guacamoleb, guacamolec, OnePlus7,$(TARGET_DEVICE)),)
+    LOCAL_STATIC_JAVA_LIBRARIES := \
+			vendor.oneplus.camera.CameraHIDL-V1.0-java
     LOCAL_SRC_FILES += $(call all-java-files-under, src_kh_cam)
 else
     LOCAL_SRC_FILES += $(call all-java-files-under, src_kh_no_cam)
