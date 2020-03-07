@@ -36,6 +36,9 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
 ifneq ($(filter guacamole, guacamoleb, guacamolec,$(TARGET_DEVICE)),)
 LOCAL_STATIC_JAVA_LIBRARIES := \
     vendor.oneplus.camera.CameraHIDL-V1.0-java
+    LOCAL_SRC_FILES += $(call all-java-files-under, src_kh_cam)
+else
+    LOCAL_SRC_FILES += $(call all-java-files-under, src_kh_no_cam)
 endif
 
 LOCAL_RESOURCE_DIR := \
