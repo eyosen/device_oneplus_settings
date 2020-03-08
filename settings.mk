@@ -12,8 +12,3 @@ PRODUCT_PACKAGES += \
 # Device Settings
 PRODUCT_PACKAGES += \
     DeviceSettings
-
-# tri-state-key
-PRODUCT_PACKAGES += \
-    tri-state-key_daemon
-
