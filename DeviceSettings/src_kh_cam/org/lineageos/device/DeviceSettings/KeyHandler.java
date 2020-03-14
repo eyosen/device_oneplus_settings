@@ -30,6 +30,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.media.session.MediaSessionLegacyHelper;
+import android.os.Bundle;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Message;
@@ -62,6 +63,7 @@ public class KeyHandler implements DeviceKeyHandler {
 
     private static final SparseIntArray sSupportedSliderZenModes = new SparseIntArray();
     private static final SparseIntArray sSupportedSliderRingModes = new SparseIntArray();
+    private static final SparseIntArray sKeyToModeMap = new SparseIntArray();
     static {
         sSupportedSliderZenModes.put(Constants.KEY_VALUE_TOTAL_SILENCE, Settings.Global.ZEN_MODE_NO_INTERRUPTIONS);
         sSupportedSliderZenModes.put(Constants.KEY_VALUE_SILENT, Settings.Global.ZEN_MODE_OFF);
@@ -74,6 +76,12 @@ public class KeyHandler implements DeviceKeyHandler {
         sSupportedSliderRingModes.put(Constants.KEY_VALUE_PRIORTY_ONLY, AudioManager.RINGER_MODE_NORMAL);
         sSupportedSliderRingModes.put(Constants.KEY_VALUE_VIBRATE, AudioManager.RINGER_MODE_VIBRATE);
         sSupportedSliderRingModes.put(Constants.KEY_VALUE_NORMAL, AudioManager.RINGER_MODE_NORMAL);
+
+        sKeyToModeMap.put(Constants.KEY_VALUE_TOTAL_SILENCE, Constants.MODE_TOTAL_SILENCE);
+        sKeyToModeMap.put(Constants.KEY_VALUE_SILENT, Constants.MODE_SILENT);
+        sKeyToModeMap.put(Constants.KEY_VALUE_PRIORTY_ONLY, Constants.MODE_PRIORITY_ONLY);
+        sKeyToModeMap.put(Constants.KEY_VALUE_VIBRATE, Constants.MODE_VIBRATE);
+        sKeyToModeMap.put(Constants.KEY_VALUE_NORMAL, Constants.MODE_RING);
     }
 
     public static final String CLIENT_PACKAGE_NAME = "com.oneplus.camera";
@@ -150,7 +158,7 @@ public class KeyHandler implements DeviceKeyHandler {
             launchDozePulse();
             return null;
         }
-        
+
         int keyCodeValue = 0;
         try {
             keyCodeValue = Constants.getPreferenceInt(mContext, keyCode);
@@ -166,21 +174,30 @@ public class KeyHandler implements DeviceKeyHandler {
         if (event.getAction() != KeyEvent.ACTION_UP) {
             return null;
         }
+        if (DEBUG) Log.d(TAG, "scanCode " + scanCode
+                            + " with keyCode " + keyCode
+                            + " with keyCodeValue " + keyCodeValue
+                            + " with positionValue " + sKeyToModeMap.get(keyCodeValue));
 
         mAudioManager.setRingerModeInternal(sSupportedSliderRingModes.get(keyCodeValue));
         mNotificationManager.setZenMode(sSupportedSliderZenModes.get(keyCodeValue), null, TAG);
         int position = scanCode == 601 ? 2 : scanCode == 602 ? 1 : 0;
-        sendUpdateBroadcast(position);
+        int positionValue = sKeyToModeMap.get(keyCodeValue);
+        sendUpdateBroadcast(position, positionValue);
         doHapticFeedback();
         return null;
     }
 
-    private void sendUpdateBroadcast(int position) {
+    private void sendUpdateBroadcast(int position, int position_value) {
+        Bundle extras = new Bundle();
         Intent intent = new Intent(Constants.ACTION_UPDATE_SLIDER_POSITION);
-        intent.putExtra(Constants.EXTRA_SLIDER_POSITION, position);
+        extras.putInt(Constants.EXTRA_SLIDER_POSITION, position);
+        extras.putInt(Constants.EXTRA_SLIDER_POSITION_VALUE, position_value);
+        intent.putExtras(extras);
         mContext.sendBroadcastAsUser(intent, UserHandle.CURRENT);
         intent.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-        Log.d(TAG, "slider change to positon " + position);
+        if (DEBUG) Log.d(TAG, "slider change to position " + position
+                            + " with value " + position_value);
     }
 
     private void doHapticFeedback() {
